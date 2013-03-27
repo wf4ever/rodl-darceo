@@ -20,7 +20,7 @@ import javax.net.ssl.TrustManagerFactory;
 import org.apache.log4j.Logger;
 
 import pl.psnc.dl.wf4ever.preservation.client.RepositoryClient;
-import pl.psnc.dl.wf4ever.preservation.model.ResearchObject;
+import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -124,7 +124,7 @@ public class DArceoClient implements RepositoryClient {
 
 
     @Override
-    public URI post(ResearchObject researchObject) {
+    public URI post(ResearchObjectSerializable researchObject) {
         WebResource webResource = client.resource(repositoryUri.toString());
         ClientResponse response = webResource.type("application/zip").post(ClientResponse.class,
             getClass().getClassLoader().getResourceAsStream("foxandbunny.zip"));
@@ -160,7 +160,6 @@ public class DArceoClient implements RepositoryClient {
             webResource = client.resource(response.getLocation().toString());
             return URI.create(webResource.get(String.class));
         }
-
         return null;
     }
 
