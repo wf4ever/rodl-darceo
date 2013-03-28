@@ -47,7 +47,6 @@ public final class IO {
      */
     public static InputStream toZipInputStream(ResearchObjectSerializable researchObject) {
         File tmpFile = null;
-        ZipEntry entry = null;
         List<ZipEntry> entries = new ArrayList<ZipEntry>();
         try {
             tmpFile = File.createTempFile("dArcoArtefact", ".zip");

@@ -35,6 +35,8 @@ import com.sun.jersey.api.client.WebResource;
  */
 public class DArceoClient implements RepositoryClient {
 
+    //TODO replace or deprecated method on ... ?
+
     /** logger. */
     private static final Logger LOGGER = Logger.getLogger(TestDArceoClient.class);
     /** Singleton instance. */
@@ -106,6 +108,7 @@ public class DArceoClient implements RepositoryClient {
 
     @Override
     public InputStream get(URI id) {
+        @SuppressWarnings("deprecation")
         WebResource webResource = client.resource(repositoryUri).path(URLEncoder.encode(id.toString()));
         ClientResponse response = webResource.get(ClientResponse.class);
         if (response.getStatus() == 200) {
@@ -145,6 +148,7 @@ public class DArceoClient implements RepositoryClient {
 
     @Override
     public URI delete(URI id) {
+        @SuppressWarnings("deprecation")
         WebResource webResource = client.resource(repositoryUri).path(URLEncoder.encode(id.toString()));
         ClientResponse response = webResource.delete(ClientResponse.class);
         if (response.getStatus() == 202) {
