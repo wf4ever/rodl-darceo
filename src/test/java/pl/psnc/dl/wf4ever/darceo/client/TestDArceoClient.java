@@ -24,8 +24,6 @@ import com.sun.jersey.api.client.Client;
 public class TestDArceoClient {
 
     private static Client client = Client.create();
-    private String zipContent1 = "content/mock/1.txt";
-    private String zipContent2 = "content/mock/2.txt";
 
 
     @BeforeClass
@@ -42,19 +40,46 @@ public class TestDArceoClient {
 
 
     @Test
-    public void testCRUD()
+    public void testCRUDObject()
             throws IOException {
         List<String> roContent = new ArrayList<String>();
-        roContent.add("mock/1.txt");
-        roContent.add("mock/2.txt");
+        String resourcePath1 = "mock/1.txt";
+        String resourcePath2 = "mock/2.txt";
+        roContent.add(resourcePath1);
+        roContent.add(resourcePath2);
+        List<String> expectedResources = new ArrayList<String>();
+        expectedResources.add(resourcePath1);
+        expectedResources.add(resourcePath2);
         ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent);
-        crud(ro);
+        crud(ro, expectedResources);
+    }
+
+
+    @Test
+    public void testCRUDRO()
+            throws IOException {
+        List<String> roContent = new ArrayList<String>();
+        String path1 = "mock/simple/content/simple/1.txt";
+        String path2 = "mock/simple/content/simple/2.txt";
+        String path3 = "mock/simple/content/simple/.ro/manifest.rdf";
+        String path4 = "mock/simple/content/simple/.ro/evo_info.ttl";
+        roContent.add(path1);
+        roContent.add(path2);
+        roContent.add(path3);
+        roContent.add(path4);
+        List<String> expectedResources = new ArrayList<String>();
+        expectedResources.add(path1);
+        expectedResources.add(path2);
+        expectedResources.add(path3);
+        expectedResources.add(path4);
+        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent);
+        crud(ro, expectedResources);
     }
 
 
     //TODO write more tests with the strange URIs to define expected exceptions in case of mistakes in URIs parameters. OK ;) ?
 
-    private void crud(ResearchObjectSerializable ro)
+    private void crud(ResearchObjectSerializable ro, List<String> expectedResources)
             throws IOException {
         URI statusURI = DArceoClient.getInstance().post(ro);
         Assert.assertNotNull(statusURI);
@@ -68,18 +93,23 @@ public class TestDArceoClient {
         out.flush();
         out.close();
         ZipFile zipFile = new ZipFile(tmpFile);
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        int counter = 0;
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            if (entry.getName().equals(zipContent1) || entry.getName().equals(zipContent2)) {
-                counter++;
+
+        for (String expectedResource : expectedResources) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            boolean hasEntry = false;
+            while (entries.hasMoreElements()) {
+                if (("content/" + expectedResource.toString()).equals(entries.nextElement().getName())) {
+                    hasEntry = true;
+                    break;
+                }
             }
+
+            Assert.assertTrue("expected entry: " + expectedResource + " is not in the returned structure", hasEntry);
         }
         tmpFile.delete();
         //GET Test
         Assert.assertNull(DArceoClient.getInstance().get(id.resolve("wrong-id")));
-        Assert.assertEquals(2, counter);
+
         //DELETE
         //DELETE Test
         Assert.assertNull(DArceoClient.getInstance().delete(id.resolve("wrong-id")));
