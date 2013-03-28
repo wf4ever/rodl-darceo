@@ -1,5 +1,7 @@
 package pl.psnc.dl.wf4ever.darceo.client;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -17,8 +19,10 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import pl.psnc.dl.wf4ever.darceo.utils.IO;
 import pl.psnc.dl.wf4ever.preservation.client.RepositoryClient;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
 
@@ -32,7 +36,7 @@ import com.sun.jersey.api.client.WebResource;
 public class DArceoClient implements RepositoryClient {
 
     /** logger. */
-    private static final Logger LOGGER = Logger.getLogger(TestRepositoryClient.class);
+    private static final Logger LOGGER = Logger.getLogger(TestDArceoClient.class);
     /** Singleton instance. */
     protected static RepositoryClient instance;
     /** Repository url. */
@@ -126,8 +130,15 @@ public class DArceoClient implements RepositoryClient {
     @Override
     public URI post(ResearchObjectSerializable researchObject) {
         WebResource webResource = client.resource(repositoryUri.toString());
+        try {
+            FileOutputStream f = new FileOutputStream(new File("/home/pejot/cos.zip"));
+            IOUtils.copy(IO.toZipInputStream(researchObject), f);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         ClientResponse response = webResource.type("application/zip").post(ClientResponse.class,
-            getClass().getClassLoader().getResourceAsStream("foxandbunny.zip"));
+            IO.toZipInputStream(researchObject));
         return response.getLocation();
     }
 

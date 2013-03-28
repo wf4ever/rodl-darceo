@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
@@ -21,10 +21,18 @@ import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
  * @author pejot
  * 
  */
-public class IO {
+public final class IO {
 
     /** logger. */
     private static final Logger LOGGER = Logger.getLogger(IO.class);
+
+
+    /**
+     * Hiddden constructor.
+     */
+    private IO() {
+        //nope
+    }
 
 
     /**
@@ -35,14 +43,15 @@ public class IO {
      * @return input stream with zipped ro.
      * @throws IOException
      */
-    ZipInputStream toZipInputStream(ResearchObjectSerializable researchObject) {
+    public static InputStream toZipInputStream(ResearchObjectSerializable researchObject) {
         File tmpFile = null;
         try {
             tmpFile = File.createTempFile("dArcoArtefact", ".zip");
             tmpFile.deleteOnExit();
             ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(tmpFile));
             for (ResearchObjectComponentSerializable component : researchObject.getSerializables()) {
-                URI path = URI.create("content/").resolve(researchObject.getUri().relativize(component.getUri()));
+                //TODO change on the content catalogue
+                URI path = URI.create("").resolve(researchObject.getUri().relativize(component.getUri()));
                 ZipEntry entry = new ZipEntry(path.toString());
                 zipOutput.putNextEntry(entry);
                 IOUtils.copy(component.getSerialization(), zipOutput);
@@ -50,7 +59,7 @@ public class IO {
             }
             zipOutput.flush();
             zipOutput.close();
-            ZipInputStream result = new ZipInputStream(new FileInputStream(tmpFile));
+            InputStream result = new FileInputStream(tmpFile);
             tmpFile.delete();
             return result;
         } catch (IOException e) {

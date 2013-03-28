@@ -3,6 +3,7 @@ package pl.psnc.dl.wf4ever.darceo.client.mock;
 import java.io.InputStream;
 import java.net.URI;
 
+import org.apache.log4j.Logger;
 import org.openrdf.rio.RDFFormat;
 
 import pl.psnc.dl.wf4ever.dl.ResourceMetadata;
@@ -10,15 +11,21 @@ import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectComponentSerializable
 
 public class ResearchObjectComponentSerializableMock implements ResearchObjectComponentSerializable {
 
-    public ResearchObjectComponentSerializableMock(String resourcePath) {
+    private static final Logger LOGGER = Logger.getLogger(ResearchObjectComponentSerializableMock.class);
 
+    private InputStream serialization;
+    private URI uri;
+
+
+    public ResearchObjectComponentSerializableMock(String resourcePath) {
+        this.serialization = getClass().getClassLoader().getResourceAsStream(resourcePath);
+        this.uri = URI.create(resourcePath);
     }
 
 
     @Override
     public URI getUri() {
-        //IMPLEMENT ME!
-        return null;
+        return uri;
     }
 
 
@@ -36,8 +43,7 @@ public class ResearchObjectComponentSerializableMock implements ResearchObjectCo
 
     @Override
     public InputStream getSerialization() {
-        // IMPLEMENT ME!
-        return null;
+        return serialization;
     }
 
 
