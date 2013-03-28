@@ -24,8 +24,8 @@ import com.sun.jersey.api.client.Client;
 public class TestDArceoClient {
 
     private static Client client = Client.create();
-    private String zipContent1 = "content/1.txt";
-    private String zipContent2 = "content/2.txt";
+    private String zipContent1 = "content/mock/1.txt";
+    private String zipContent2 = "content/mock/2.txt";
 
 
     @BeforeClass
@@ -45,8 +45,8 @@ public class TestDArceoClient {
     public void testCRUD()
             throws IOException {
         List<String> roContent = new ArrayList<String>();
-        roContent.add("1.txt");
-        roContent.add("2.txt");
+        roContent.add("mock/1.txt");
+        roContent.add("mock/2.txt");
         ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent);
         crud(ro);
     }
