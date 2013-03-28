@@ -27,6 +27,12 @@ public final class IO {
 
     /** logger. */
     private static final Logger LOGGER = Logger.getLogger(IO.class);
+    /** metadata id file path. */
+    private static final String METADATA_ID_FILE_PATH = "metadata/id.mets";
+    /** path for template for metadata id file. */
+    private static final String METADATA_TEMPLATE_ID_FILE_PATH = "tempaltes/metadata/id.mets";
+    /** content directory path. */
+    private static final String CONTENT_PATH = "content/";
 
 
     /**
@@ -52,12 +58,13 @@ public final class IO {
             tmpFile = File.createTempFile("dArcoArtefact", ".zip");
             tmpFile.deleteOnExit();
             ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(tmpFile));
-            putEntryAndDirectoriesPath(zipOutput, URI.create("content/"), null, entries);
             for (ResearchObjectComponentSerializable component : researchObject.getSerializables()) {
                 putEntryAndDirectoriesPath(zipOutput,
-                    URI.create("content/").resolve(researchObject.getUri().relativize(component.getUri())),
+                    URI.create(CONTENT_PATH).resolve(researchObject.getUri().relativize(component.getUri())),
                     component.getSerialization(), entries);
             }
+            //add metadata
+            putMetadataId(zipOutput, entries, researchObject.getUri());
             zipOutput.flush();
             zipOutput.close();
             InputStream result = new FileInputStream(tmpFile);
@@ -71,6 +78,27 @@ public final class IO {
             return null;
         }
 
+    }
+
+
+    /**
+     * Add to the package metadata file containing RO id.
+     * 
+     * @param zipOutput
+     *            zip output
+     * @param entriesGroup
+     *            exited entries
+     * @param id
+     *            Research Object id
+     * @throws IOException .
+     */
+    private static void putMetadataId(ZipOutputStream zipOutput, List<ZipEntry> entriesGroup, URI id)
+            throws IOException {
+        String template = IOUtils.toString(IO.class.getClassLoader()
+                .getResourceAsStream(METADATA_TEMPLATE_ID_FILE_PATH));
+        template.replace("{{object-id}}", id.toString());
+        InputStream input = IOUtils.toInputStream(template);
+        putEntryAndDirectoriesPath(zipOutput, URI.create(METADATA_ID_FILE_PATH), input, entriesGroup);
     }
 
 
