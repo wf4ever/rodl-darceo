@@ -30,7 +30,7 @@ public final class IO {
     /** metadata id file path. */
     private static final String METADATA_ID_FILE_PATH = "metadata/id.mets";
     /** path for template for metadata id file. */
-    private static final String METADATA_TEMPLATE_ID_FILE_PATH = "tempaltes/metadata/id.mets";
+    private static final String METADATA_TEMPLATE_ID_FILE_PATH = "templates/metadata/id.mets";
     /** content directory path. */
     private static final String CONTENT_PATH = "content/";
 
@@ -96,8 +96,7 @@ public final class IO {
             throws IOException {
         String template = IOUtils.toString(IO.class.getClassLoader()
                 .getResourceAsStream(METADATA_TEMPLATE_ID_FILE_PATH));
-        template.replace("{{object-id}}", id.toString());
-        InputStream input = IOUtils.toInputStream(template);
+        InputStream input = IOUtils.toInputStream(template.replace("{{object-id}}", id.toString()));
         putEntryAndDirectoriesPath(zipOutput, URI.create(METADATA_ID_FILE_PATH), input, entriesGroup);
     }
 
@@ -125,7 +124,7 @@ public final class IO {
             for (int j = 0; j <= i; j++) {
                 entryName += directoriesList[j] + "/";
                 if (!inEntries(entriesGroup, entryName)) {
-                    putEntry(zipOutput, new ZipEntry(entryName), input, entriesGroup);
+                    putEntry(zipOutput, new ZipEntry(entryName), null, entriesGroup);
                 }
             }
         }
@@ -156,6 +155,7 @@ public final class IO {
             IOUtils.copy(input, zipOutput);
         }
         zipOutput.closeEntry();
+        zipOutput.flush();
         entriesGroup.add(entry);
     }
 

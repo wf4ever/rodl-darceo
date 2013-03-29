@@ -1,7 +1,5 @@
 package pl.psnc.dl.wf4ever.darceo.client;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -19,7 +17,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import pl.psnc.dl.wf4ever.darceo.utils.IO;
@@ -114,15 +111,13 @@ public class DArceoClient implements RepositoryClient {
         if (response.getStatus() == 200) {
             return response.getEntityInputStream();
         } else if (response.getStatus() == 202) {
-            webResource = client.resource(response.getLocation().toString()
-                    .replace("http://zmd.wrdz.synat.psnc.pl/", "http:%2F%2Fzmd.wrdz.synat.psnc.pl%2F"));
+            webResource = client.resource(response.getLocation().toString());
             response = webResource.get(ClientResponse.class);
             while (response.getStatus() == 200) {
                 response = webResource.get(ClientResponse.class);
             }
             if (response.getStatus() == 303) {
-                webResource = client.resource(response.getLocation().toString()
-                        .replace("http://zmd.wrdz.synat.psnc.pl/", "http:%2F%2Fzmd.wrdz.synat.psnc.pl%2F"));
+                webResource = client.resource(response.getLocation().toString());
                 return webResource.get(ClientResponse.class).getEntityInputStream();
             }
         }
@@ -133,13 +128,6 @@ public class DArceoClient implements RepositoryClient {
     @Override
     public URI post(ResearchObjectSerializable researchObject) {
         WebResource webResource = client.resource(repositoryUri.toString());
-        try {
-            FileOutputStream f = new FileOutputStream(new File("/home/pejot/cos.zip"));
-            IOUtils.copy(IO.toZipInputStream(researchObject), f);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         ClientResponse response = webResource.type("application/zip").post(ClientResponse.class,
             IO.toZipInputStream(researchObject));
         return response.getLocation();
@@ -152,8 +140,7 @@ public class DArceoClient implements RepositoryClient {
         WebResource webResource = client.resource(repositoryUri).path(URLEncoder.encode(id.toString()));
         ClientResponse response = webResource.delete(ClientResponse.class);
         if (response.getStatus() == 202) {
-            webResource = client.resource(response.getLocation().toString()
-                    .replace("http://zmd.wrdz.synat.psnc.pl/", "http:%2F%2Fzmd.wrdz.synat.psnc.pl%2F"));
+            webResource = client.resource(response.getLocation().toString());
             return webResource.getURI();
         }
         return null;
@@ -187,8 +174,7 @@ public class DArceoClient implements RepositoryClient {
             response = webResource.get(ClientResponse.class);
         }
         if (response.getStatus() == 303) {
-            webResource = client.resource(response.getLocation().toString()
-                    .replace("http://zmd.wrdz.synat.psnc.pl/", "http:%2F%2Fzmd.wrdz.synat.psnc.pl%2F"));
+            webResource = client.resource(response.getLocation().toString());
             response = webResource.get(ClientResponse.class);
             if (response.getStatus() == 200) {
                 return true;

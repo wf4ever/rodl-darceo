@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -50,7 +51,8 @@ public class TestDArceoClient {
         List<String> expectedResources = new ArrayList<String>();
         expectedResources.add(resourcePath1);
         expectedResources.add(resourcePath2);
-        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent);
+        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent,
+                URI.create("http://www.example.com/ROs/ro" + UUID.randomUUID().toString() + "/"));
         crud(ro, expectedResources);
     }
 
@@ -72,7 +74,8 @@ public class TestDArceoClient {
         expectedResources.add(path2);
         expectedResources.add(path3);
         expectedResources.add(path4);
-        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent);
+        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent,
+                URI.create("http://www.example.com/ROs/ro" + UUID.randomUUID().toString() + "/"));
         crud(ro, expectedResources);
     }
 
@@ -81,6 +84,7 @@ public class TestDArceoClient {
 
     private void crud(ResearchObjectSerializable ro, List<String> expectedResources)
             throws IOException {
+
         URI statusURI = DArceoClient.getInstance().post(ro);
         Assert.assertNotNull(statusURI);
         URI id = DArceoClient.getInstance().postWait(statusURI);
@@ -92,8 +96,8 @@ public class TestDArceoClient {
         IOUtils.copy(DArceoClient.getInstance().get(id), out);
         out.flush();
         out.close();
+        @SuppressWarnings("resource")
         ZipFile zipFile = new ZipFile(tmpFile);
-
         for (String expectedResource : expectedResources) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             boolean hasEntry = false;
@@ -103,7 +107,6 @@ public class TestDArceoClient {
                     break;
                 }
             }
-
             Assert.assertTrue("expected entry: " + expectedResource + " is not in the returned structure", hasEntry);
         }
         tmpFile.delete();
