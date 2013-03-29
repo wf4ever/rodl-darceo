@@ -16,16 +16,16 @@ public class ResearchObjectSerializableMock implements ResearchObjectSerializabl
     Set<ResearchObjectComponentSerializable> serializables;
 
 
-    public ResearchObjectSerializableMock(List<String> resources) {
-        this(resources, null);
+    public ResearchObjectSerializableMock(List<String> resources, String dirPath) {
+        this(resources, dirPath, null);
     }
 
 
-    public ResearchObjectSerializableMock(List<String> resources, URI id) {
+    public ResearchObjectSerializableMock(List<String> resources, String dirPath, URI id) {
         this.resources = resources;
         this.serializables = new HashSet<>();
         for (String resource : this.resources) {
-            serializables.add(new ResearchObjectComponentSerializableMock(resource));
+            serializables.add(new ResearchObjectComponentSerializableMock(resource, dirPath));
         }
         if (id == null) {
             id = URI.create(UUID.randomUUID().toString());

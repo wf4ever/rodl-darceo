@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
@@ -33,6 +35,8 @@ public final class IO {
     private static final String METADATA_TEMPLATE_ID_FILE_PATH = "templates/metadata/id.mets";
     /** content directory path. */
     private static final String CONTENT_PATH = "content/";
+    /** manifest path . */
+    private static final String MANIFEST_PATH = ".ro/manifest.rdf";
 
 
     /**
@@ -176,5 +180,40 @@ public final class IO {
             }
         }
         return false;
+    }
+
+
+    /**
+     * Create a ResearchObject from given zip as input stream.
+     * 
+     * @param id
+     *            Research Object id
+     * @param input
+     *            The content of the zip aggreagated ResearchObject
+     * @return a instance of ResearchObject
+     */
+    public static ResearchObjectSerializable zipInputStreamToResearchObject(URI id, InputStream input) {
+        File tmpZipFile = null;
+        ZipFile zipFile = null;
+        try {
+            tmpZipFile = File.createTempFile("zipInput", ".zip");
+            IOUtils.copy(input, new FileOutputStream(tmpZipFile));
+            zipFile = new ZipFile(tmpZipFile);
+        } catch (IOException e) {
+            LOGGER.error("Can't careate a tmpFile for a RO " + id + " given from dArceo", e);
+            return null;
+        }
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        //first get Manifest build Jena and parese it
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = entries.nextElement();
+            if (entry.getName().equals("content/.ro/manifest.rdf")) {
+                System.out.println(entry.getName());
+            } else {
+                System.out.println(entry.getName());
+            }
+        }
+        //second agreegated everything from there
+        return null;
     }
 }

@@ -167,7 +167,7 @@ public class DArceoClient implements RepositoryClient {
 
 
     @Override
-    public Boolean deleteWait(URI status) {
+    public boolean deleteWait(URI status) {
         WebResource webResource = client.resource(status);
         ClientResponse response = webResource.get(ClientResponse.class);
         while (response.getStatus() == 200) {

@@ -17,9 +17,9 @@ public class ResearchObjectComponentSerializableMock implements ResearchObjectCo
     private URI uri;
 
 
-    public ResearchObjectComponentSerializableMock(String resourcePath) {
+    public ResearchObjectComponentSerializableMock(String resourcePath, String driPath) {
         this.serialization = getClass().getClassLoader().getResourceAsStream(resourcePath);
-        this.uri = URI.create(resourcePath);
+        this.uri = URI.create(resourcePath.split(driPath)[1]);
     }
 
 
