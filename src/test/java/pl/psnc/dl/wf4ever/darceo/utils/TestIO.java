@@ -68,7 +68,8 @@ public class TestIO {
 
 
     public void testZipInputStreamToResearchObject() {
-        //IO.zipInputStreamToResearchObject(null, "mock/simple/content/");
+        URI id = URI.create("http://www.example.com/ROs/example-ro/");
+        //IO.zipInputStreamToResearchObject(id, input);
     }
 
 

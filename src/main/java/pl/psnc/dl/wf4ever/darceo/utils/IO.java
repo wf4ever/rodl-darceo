@@ -192,6 +192,7 @@ public final class IO {
      *            The content of the zip aggreagated ResearchObject
      * @return a instance of ResearchObject
      */
+    @SuppressWarnings("resource")
     public static ResearchObjectSerializable zipInputStreamToResearchObject(URI id, InputStream input) {
         File tmpZipFile = null;
         ZipFile zipFile = null;
