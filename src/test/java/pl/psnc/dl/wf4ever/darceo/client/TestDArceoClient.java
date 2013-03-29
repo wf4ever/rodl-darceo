@@ -41,23 +41,6 @@ public class TestDArceoClient {
 
 
     @Test
-    public void testCRUDObject()
-            throws IOException {
-        List<String> roContent = new ArrayList<String>();
-        String resourcePath1 = "mock/1.txt";
-        String resourcePath2 = "mock/2.txt";
-        roContent.add(resourcePath1);
-        roContent.add(resourcePath2);
-        List<String> expectedResources = new ArrayList<String>();
-        expectedResources.add(resourcePath1);
-        expectedResources.add(resourcePath2);
-        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent, "mock/simple/content/",
-                URI.create("http://www.example.com/ROs/ro" + UUID.randomUUID().toString() + "/"));
-        crud(ro, expectedResources);
-    }
-
-
-    @Test
     public void testCRUDRO()
             throws IOException {
         List<String> roContent = new ArrayList<String>();
@@ -74,7 +57,7 @@ public class TestDArceoClient {
         expectedResources.add(path2);
         expectedResources.add(path3);
         expectedResources.add(path4);
-        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent, "mock/simple/content/",
+        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent, "mock/simple/content/simple/",
                 URI.create("http://www.example.com/ROs/ro" + UUID.randomUUID().toString() + "/"));
         crud(ro, expectedResources);
     }
@@ -102,7 +85,7 @@ public class TestDArceoClient {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             boolean hasEntry = false;
             while (entries.hasMoreElements()) {
-                if (("content/" + (expectedResource.toString().split("mock/simple/content/")[1])).equals(entries
+                if (("content/" + (expectedResource.toString().split("mock/simple/content/simple/")[1])).equals(entries
                         .nextElement().getName())) {
                     hasEntry = true;
                     break;

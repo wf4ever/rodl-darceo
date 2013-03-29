@@ -18,6 +18,12 @@ import org.apache.log4j.Logger;
 
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectComponentSerializable;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
+import pl.psnc.dl.wf4ever.vocabulary.ORE;
+
+import com.hp.hpl.jena.ontology.Individual;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 
 /**
  * Aggregates functions used to process data exchanged by dArceo and rodl.
@@ -208,10 +214,29 @@ public final class IO {
         //first get Manifest build Jena and parese it
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
-            if (entry.getName().equals("content/.ro/manifest.rdf")) {
-                System.out.println(entry.getName());
-            } else {
-                System.out.println(entry.getName());
+            if (entry.getName().equals("content/simple/.ro/manifest.rdf")) {
+                OntModel model = ModelFactory.createOntologyModel();
+                try {
+                    model.read(zipFile.getInputStream(entry), id.toString() + ".ro/");
+                    model.write(new FileOutputStream(new File("/home/pejot/m.txt")), "TTL");
+                    Individual roIndividual = model.getResource(id.toString()).as(Individual.class);
+                    for (RDFNode node : roIndividual.listPropertyValues(ORE.aggregates).toList()) {
+                        if (node.isURIResource()) {
+                            URI entryName = URI.create("content/").resolve(
+                                id.relativize(URI.create(node.asResource().getURI())).toString());
+                            InputStream entryInput = zipFile.getInputStream(new ZipEntry(entryName.toString()));
+                            if (entryInput != null) {
+                                //internal
+                            } else {
+                                //external
+                            }
+                        }
+                    }
+
+                } catch (IOException e) {
+                    LOGGER.error("can't load the manifest from zip for RO " + id, e);
+                }
+                break;
             }
         }
         //second agreegated everything from there

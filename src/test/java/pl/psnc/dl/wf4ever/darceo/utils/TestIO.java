@@ -39,26 +39,27 @@ public class TestIO {
         expectedResources.add(path2);
         expectedResources.add(path3);
         expectedResources.add(path4);
-        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent, "mock/simple/content/",
+        ResearchObjectSerializable ro = new ResearchObjectSerializableMock(roContent, "mock/simple/content/simple/",
                 URI.create("http://www.example.com/ROs/ro" + UUID.randomUUID().toString() + "/"));
         InputStream input = IO.toZipInputStream(ro);
         File tmpFile = File.createTempFile("testIOtoZipInputStream", ".zip");
         IOUtils.copy(input, new FileOutputStream(tmpFile));
         ZipFile zipFile = new ZipFile(tmpFile);
 
-        for (String name : roContent) {
-            name = name.split("mock/simple/")[1];
-            Assert.assertTrue("Zip doesn't contain entry: " + name, hasEntry(zipFile.entries(), name));
-        }
+        //chech resources
+        Assert.assertTrue("Zip doesn't contain entry: content/1.txt", hasEntry(zipFile.entries(), "content/1.txt"));
+        Assert.assertTrue("Zip doesn't contain entry: content/2.txt", hasEntry(zipFile.entries(), "content/2.txt"));
+        Assert.assertTrue("Zip doesn't contain entry: content/.ro/manifest.rdf",
+            hasEntry(zipFile.entries(), "content/.ro/manifest.rdf"));
+        Assert.assertTrue("Zip doesn't contain entry: content/.ro/evo_info.ttl",
+            hasEntry(zipFile.entries(), "content/.ro/evo_info.ttl"));
+
         //check metadata
         Assert.assertTrue("Zip doesn't contain entry: metadata/id.mets",
             hasEntry(zipFile.entries(), "metadata/id.mets"));
         //check folders
         Assert.assertTrue("Zip doesn't contain entry: " + "content/", hasEntry(zipFile.entries(), "content/"));
-        Assert.assertTrue("Zip doesn't contain entry: " + "content/simple/",
-            hasEntry(zipFile.entries(), "content/simple/"));
-        Assert.assertTrue("Zip doesn't contain entry: " + "content/simple/.ro/",
-            hasEntry(zipFile.entries(), "content/simple/.ro/"));
+        Assert.assertTrue("Zip doesn't contain entry: " + "content/.ro/", hasEntry(zipFile.entries(), "content/.ro/"));
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
@@ -67,9 +68,10 @@ public class TestIO {
     }
 
 
+    @Test
     public void testZipInputStreamToResearchObject() {
-        URI id = URI.create("http://www.example.com/ROs/example-ro/");
-        //IO.zipInputStreamToResearchObject(id, input);
+        URI id = URI.create("http://www.example.com/ROs/simple/");
+        IO.zipInputStreamToResearchObject(id, getClass().getClassLoader().getResourceAsStream("simple.zip"));
     }
 
 
