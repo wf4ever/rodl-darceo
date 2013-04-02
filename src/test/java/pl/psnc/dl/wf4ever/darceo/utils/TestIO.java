@@ -17,7 +17,7 @@ import junit.framework.Assert;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import pl.psnc.dl.wf4ever.darceo.client.mock.ResearchObjectSerializableMock;
+import pl.psnc.dl.wf4ever.darceo.model.mock.ResearchObjectSerializableMock;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
 
 public class TestIO {

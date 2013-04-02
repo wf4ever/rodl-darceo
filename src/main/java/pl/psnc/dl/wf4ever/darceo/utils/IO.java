@@ -226,7 +226,7 @@ public final class IO {
                                 id.relativize(URI.create(node.asResource().getURI())).toString());
                             InputStream entryInput = zipFile.getInputStream(new ZipEntry(entryName.toString()));
                             if (entryInput != null) {
-                                //internal
+
                             } else {
                                 //external
                             }

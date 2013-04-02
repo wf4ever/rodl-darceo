@@ -6,7 +6,6 @@ import java.util.Set;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectComponentSerializable;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
 
-
 public class ResearchObject implements ResearchObjectSerializable {
 
     @Override

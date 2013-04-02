@@ -1,4 +1,4 @@
-package pl.psnc.dl.wf4ever.darceo.client.mock;
+package pl.psnc.dl.wf4ever.darceo.model.mock;
 
 import java.io.InputStream;
 import java.net.URI;

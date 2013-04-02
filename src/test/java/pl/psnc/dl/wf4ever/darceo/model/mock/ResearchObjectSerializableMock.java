@@ -1,4 +1,4 @@
-package pl.psnc.dl.wf4ever.darceo.client.mock;
+package pl.psnc.dl.wf4ever.darceo.model.mock;
 
 import java.net.URI;
 import java.util.HashSet;
