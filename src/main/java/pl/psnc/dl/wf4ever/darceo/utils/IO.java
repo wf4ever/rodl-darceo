@@ -16,6 +16,8 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import pl.psnc.dl.wf4ever.darceo.model.ResearchObject;
+import pl.psnc.dl.wf4ever.darceo.model.ResearchObjectComponent;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectComponentSerializable;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
 import pl.psnc.dl.wf4ever.vocabulary.ORE;
@@ -212,6 +214,7 @@ public final class IO {
         }
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
         //first get Manifest build Jena and parese it
+        ResearchObject researchObject = new ResearchObject(id);
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
             if (entry.getName().equals("content/simple/.ro/manifest.rdf")) {
@@ -222,24 +225,22 @@ public final class IO {
                     Individual roIndividual = model.getResource(id.toString()).as(Individual.class);
                     for (RDFNode node : roIndividual.listPropertyValues(ORE.aggregates).toList()) {
                         if (node.isURIResource()) {
+                            URI resourceUri = URI.create(node.asResource().getURI());
                             URI entryName = URI.create("content/").resolve(
                                 id.relativize(URI.create(node.asResource().getURI())).toString());
                             InputStream entryInput = zipFile.getInputStream(new ZipEntry(entryName.toString()));
-                            if (entryInput != null) {
-
-                            } else {
-                                //external
-                            }
+                            researchObject.addSerializable(new ResearchObjectComponent(resourceUri, entryInput));
                         }
+                        zipFile.close();
+                        break;
                     }
-
                 } catch (IOException e) {
                     LOGGER.error("can't load the manifest from zip for RO " + id, e);
+                    return researchObject;
                 }
-                break;
             }
         }
-        //second agreegated everything from there
-        return null;
+        tmpZipFile.delete();
+        return researchObject;
     }
 }
