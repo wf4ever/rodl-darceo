@@ -1,7 +1,6 @@
 package pl.psnc.dl.wf4ever.darceo.client;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.KeyManagementException;
@@ -104,12 +103,12 @@ public class DArceoClient implements RepositoryClient {
 
 
     @Override
-    public InputStream get(URI id) {
+    public ResearchObjectSerializable get(URI id) {
         @SuppressWarnings("deprecation")
         WebResource webResource = client.resource(repositoryUri).path(URLEncoder.encode(id.toString()));
         ClientResponse response = webResource.get(ClientResponse.class);
         if (response.getStatus() == 200) {
-            return response.getEntityInputStream();
+            return IO.toResearchObject(id, response.getEntityInputStream());
         } else if (response.getStatus() == 202) {
             webResource = client.resource(response.getLocation().toString());
             response = webResource.get(ClientResponse.class);
@@ -118,7 +117,7 @@ public class DArceoClient implements RepositoryClient {
             }
             if (response.getStatus() == 303) {
                 webResource = client.resource(response.getLocation().toString());
-                return webResource.get(ClientResponse.class).getEntityInputStream();
+                return IO.toResearchObject(id, webResource.get(ClientResponse.class).getEntityInputStream());
             }
         }
         return null;

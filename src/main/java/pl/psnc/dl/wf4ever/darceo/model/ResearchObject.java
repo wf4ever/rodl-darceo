@@ -1,8 +1,8 @@
 package pl.psnc.dl.wf4ever.darceo.model;
 
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectComponentSerializable;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
@@ -16,7 +16,7 @@ import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
 public class ResearchObject implements ResearchObjectSerializable {
 
     /** List of aggreagted components. */
-    private Set<ResearchObjectComponentSerializable> serializables;
+    private Map<URI, ResearchObjectComponentSerializable> serializables;
     /** RO uri. */
     private URI uri;
 
@@ -30,12 +30,12 @@ public class ResearchObject implements ResearchObjectSerializable {
      */
     public ResearchObject(URI uri) {
         this.uri = uri;
-        serializables = new HashSet<>();
+        serializables = new HashMap<>();
     }
 
 
     @Override
-    public Set<ResearchObjectComponentSerializable> getSerializables() {
+    public Map<URI, ResearchObjectComponentSerializable> getSerializables() {
         return this.serializables;
     }
 
@@ -60,7 +60,7 @@ public class ResearchObject implements ResearchObjectSerializable {
      *            Research object component.
      */
     public void addSerializable(ResearchObjectComponentSerializable component) {
-        this.serializables.add(component);
+        this.serializables.put(component.getUri(), component);
     }
 
 }

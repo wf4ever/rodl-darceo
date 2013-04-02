@@ -1,9 +1,9 @@
 package pl.psnc.dl.wf4ever.darceo.model.mock;
 
 import java.net.URI;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectComponentSerializable;
@@ -13,7 +13,7 @@ public class ResearchObjectSerializableMock implements ResearchObjectSerializabl
 
     private URI uri;
     private List<String> resources;
-    Set<ResearchObjectComponentSerializable> serializables;
+    Map<URI, ResearchObjectComponentSerializable> serializables;
 
 
     public ResearchObjectSerializableMock(List<String> resources, String dirPath) {
@@ -23,9 +23,11 @@ public class ResearchObjectSerializableMock implements ResearchObjectSerializabl
 
     public ResearchObjectSerializableMock(List<String> resources, String dirPath, URI id) {
         this.resources = resources;
-        this.serializables = new HashSet<>();
+        this.serializables = new HashMap<>();
         for (String resource : this.resources) {
-            serializables.add(new ResearchObjectComponentSerializableMock(resource, dirPath));
+            ResearchObjectComponentSerializable component = new ResearchObjectComponentSerializableMock(resource,
+                    dirPath);
+            serializables.put(component.getUri(), component);
         }
         if (id == null) {
             id = URI.create(UUID.randomUUID().toString());
@@ -35,7 +37,7 @@ public class ResearchObjectSerializableMock implements ResearchObjectSerializabl
 
 
     @Override
-    public Set<ResearchObjectComponentSerializable> getSerializables() {
+    public Map<URI, ResearchObjectComponentSerializable> getSerializables() {
         return serializables;
     }
 

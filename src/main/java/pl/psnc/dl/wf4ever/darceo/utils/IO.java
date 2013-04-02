@@ -43,8 +43,6 @@ public final class IO {
     private static final String METADATA_TEMPLATE_ID_FILE_PATH = "templates/metadata/id.mets";
     /** content directory path. */
     private static final String CONTENT_PATH = "content/";
-    /** manifest path . */
-    private static final String MANIFEST_PATH = ".ro/manifest.rdf";
 
 
     /**
@@ -70,7 +68,7 @@ public final class IO {
             tmpFile = File.createTempFile("dArcoArtefact", ".zip");
             tmpFile.deleteOnExit();
             ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(tmpFile));
-            for (ResearchObjectComponentSerializable component : researchObject.getSerializables()) {
+            for (ResearchObjectComponentSerializable component : researchObject.getSerializables().values()) {
                 putEntryAndDirectoriesPath(zipOutput,
                     URI.create(CONTENT_PATH).resolve(researchObject.getUri().relativize(component.getUri())),
                     component.getSerialization(), entries);
@@ -201,7 +199,7 @@ public final class IO {
      * @return a instance of ResearchObject
      */
     @SuppressWarnings("resource")
-    public static ResearchObjectSerializable zipInputStreamToResearchObject(URI id, InputStream input) {
+    public static ResearchObjectSerializable toResearchObject(URI id, InputStream input) {
         File tmpZipFile = null;
         ZipFile zipFile = null;
         try {
@@ -217,11 +215,10 @@ public final class IO {
         ResearchObject researchObject = new ResearchObject(id);
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
-            if (entry.getName().equals("content/simple/.ro/manifest.rdf")) {
+            if (entry.getName().equals("content/.ro/manifest.rdf")) {
                 OntModel model = ModelFactory.createOntologyModel();
                 try {
                     model.read(zipFile.getInputStream(entry), id.toString() + ".ro/");
-                    model.write(new FileOutputStream(new File("/home/pejot/m.txt")), "TTL");
                     Individual roIndividual = model.getResource(id.toString()).as(Individual.class);
                     for (RDFNode node : roIndividual.listPropertyValues(ORE.aggregates).toList()) {
                         if (node.isURIResource()) {
@@ -231,9 +228,13 @@ public final class IO {
                             InputStream entryInput = zipFile.getInputStream(new ZipEntry(entryName.toString()));
                             researchObject.addSerializable(new ResearchObjectComponent(resourceUri, entryInput));
                         }
-                        zipFile.close();
-                        break;
                     }
+                    //add manifest
+                    InputStream entryInput = zipFile.getInputStream(new ZipEntry("content/.ro/manifest.rdf"));
+                    researchObject.addSerializable(new ResearchObjectComponent(id.resolve(".ro/manifest.rdf"),
+                            entryInput));
+                    zipFile.close();
+                    break;
                 } catch (IOException e) {
                     LOGGER.error("can't load the manifest from zip for RO " + id, e);
                     return researchObject;
