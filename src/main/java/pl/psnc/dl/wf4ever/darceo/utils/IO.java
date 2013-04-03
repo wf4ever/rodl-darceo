@@ -6,9 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -63,15 +65,14 @@ public final class IO {
      */
     public static InputStream toZipInputStream(ResearchObjectSerializable researchObject) {
         File tmpFile = null;
-        List<ZipEntry> entries = new ArrayList<ZipEntry>();
+        Set<String> entries = new HashSet<>();
         try {
-            tmpFile = File.createTempFile("dArcoArtefact", ".zip");
+            tmpFile = File.createTempFile("dArceoArtefact", ".zip");
             tmpFile.deleteOnExit();
             ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(tmpFile));
             for (ResearchObjectComponentSerializable component : researchObject.getSerializables()) {
-                putEntryAndDirectoriesPath(zipOutput,
-                    URI.create(CONTENT_PATH).resolve(researchObject.getUri().relativize(component.getUri())),
-                    component.getSerialization(), entries);
+                Path componentPath = Paths.get(CONTENT_PATH, component.getPath());
+                putEntryAndDirectoriesPath(zipOutput, componentPath.toString(), component.getSerialization(), entries);
             }
             //add metadata
             putMetadataId(zipOutput, entries, researchObject.getUri());
@@ -102,12 +103,12 @@ public final class IO {
      *            Research Object id
      * @throws IOException .
      */
-    private static void putMetadataId(ZipOutputStream zipOutput, List<ZipEntry> entriesGroup, URI id)
+    private static void putMetadataId(ZipOutputStream zipOutput, Set<String> entriesGroup, URI id)
             throws IOException {
         String template = IOUtils.toString(IO.class.getClassLoader()
                 .getResourceAsStream(METADATA_TEMPLATE_ID_FILE_PATH));
         InputStream input = IOUtils.toInputStream(template.replace("{{object-id}}", id.toString()));
-        putEntryAndDirectoriesPath(zipOutput, URI.create(METADATA_ID_FILE_PATH), input, entriesGroup);
+        putEntryAndDirectoriesPath(zipOutput, METADATA_ID_FILE_PATH, input, entriesGroup);
     }
 
 
@@ -120,26 +121,24 @@ public final class IO {
      *            entry path
      * @param input
      *            input stream (entry content)
-     * @param entriesGroup
+     * @param entries
      *            group of entries of this serialziation
      * @throws IOException .
      */
-    private static void putEntryAndDirectoriesPath(ZipOutputStream zipOutput, URI path, InputStream input,
-            List<ZipEntry> entriesGroup)
+    private static void putEntryAndDirectoriesPath(ZipOutputStream zipOutput, String path, InputStream input,
+            Set<String> entries)
             throws IOException {
-        //first append all directories 
-        String[] directoriesList = path.toString().split("/");
-        for (int i = 0; i < directoriesList.length - 1; i++) {
-            String entryName = "";
-            for (int j = 0; j <= i; j++) {
-                entryName += directoriesList[j] + "/";
-                if (!inEntries(entriesGroup, entryName)) {
-                    putEntry(zipOutput, new ZipEntry(entryName), null, entriesGroup);
-                }
+        //first append all directories
+        String[] directories = path.split("/");
+        String entryName = "";
+        for (int i = 0; i < directories.length - 1; i++) {
+            entryName += directories[i] + "/";
+            if (entries.add(entryName)) {
+                putEntry(zipOutput, entryName, null);
             }
         }
-        if (!inEntries(entriesGroup, path.toString())) {
-            putEntry(zipOutput, new ZipEntry(path.toString()), input, entriesGroup);
+        if (entries.add(path)) {
+            putEntry(zipOutput, path, input);
         }
     }
 
@@ -149,43 +148,22 @@ public final class IO {
      * 
      * @param zipOutput
      *            stream
-     * @param entry
+     * @param entryName
      *            zip entry
      * @param input
      *            input stream (entry content, may be null)
-     * @param entriesGroup
+     * @param entries
      *            the group of currently existed entries
      * @throws IOException .
      */
-    private static void putEntry(ZipOutputStream zipOutput, ZipEntry entry, InputStream input,
-            List<ZipEntry> entriesGroup)
+    private static void putEntry(ZipOutputStream zipOutput, String entryName, InputStream input)
             throws IOException {
-        zipOutput.putNextEntry(entry);
+        zipOutput.putNextEntry(new ZipEntry(entryName));
         if (input != null) {
             IOUtils.copy(input, zipOutput);
         }
         zipOutput.closeEntry();
         zipOutput.flush();
-        entriesGroup.add(entry);
-    }
-
-
-    /**
-     * Check if current entry belongs to the entries group.
-     * 
-     * @param entriesGroup
-     *            entries group
-     * @param entryName
-     *            entry name
-     * @return true if current entry belong to the entries group, false otherwise
-     */
-    private static boolean inEntries(List<ZipEntry> entriesGroup, String entryName) {
-        for (ZipEntry e : entriesGroup) {
-            if (e.getName().equals(entryName)) {
-                return true;
-            }
-        }
-        return false;
     }
 
 
@@ -207,13 +185,14 @@ public final class IO {
             IOUtils.copy(input, new FileOutputStream(tmpZipFile));
             zipFile = new ZipFile(tmpZipFile);
         } catch (IOException e) {
-            LOGGER.error("Can't careate a tmpFile for a RO " + id + " given from dArceo", e);
+            LOGGER.error("Can't create a tmpFile for a RO " + id + " given from dArceo", e);
             return null;
         }
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
         //first get Manifest build Jena and parese it
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
+            //FIXME why this "simple"? why this if?
             if (entry.getName().equals("content/simple/.ro/manifest.rdf")) {
                 OntModel model = ModelFactory.createOntologyModel();
                 try {
@@ -239,7 +218,7 @@ public final class IO {
                 break;
             }
         }
-        //second agreegated everything from there
+        //second aggregated everything from there
         return null;
     }
 }

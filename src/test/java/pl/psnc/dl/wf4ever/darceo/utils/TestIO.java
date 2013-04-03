@@ -46,7 +46,7 @@ public class TestIO {
         IOUtils.copy(input, new FileOutputStream(tmpFile));
         ZipFile zipFile = new ZipFile(tmpFile);
 
-        //chech resources
+        //check resources
         Assert.assertTrue("Zip doesn't contain entry: content/1.txt", hasEntry(zipFile.entries(), "content/1.txt"));
         Assert.assertTrue("Zip doesn't contain entry: content/2.txt", hasEntry(zipFile.entries(), "content/2.txt"));
         Assert.assertTrue("Zip doesn't contain entry: content/.ro/manifest.rdf",

@@ -35,14 +35,15 @@ public class TestDArceoClient {
 
 
     @Test
-    public void testSingleton() {
+    public void testSingleton()
+            throws DArceoException, IOException {
         Assert.assertNotNull(DArceoClient.getInstance());
     }
 
 
     @Test
     public void testCRUDRO()
-            throws IOException {
+            throws IOException, DArceoException {
         List<String> roContent = new ArrayList<String>();
         String path1 = "mock/simple/content/simple/1.txt";
         String path2 = "mock/simple/content/simple/2.txt";
@@ -66,7 +67,7 @@ public class TestDArceoClient {
     //TODO write more tests with the strange URIs to define expected exceptions in case of mistakes in URIs parameters. OK ;) ?
 
     private void crud(ResearchObjectSerializable ro, List<String> expectedResources)
-            throws IOException {
+            throws IOException, DArceoException {
 
         URI statusURI = DArceoClient.getInstance().post(ro);
         Assert.assertNotNull(statusURI);

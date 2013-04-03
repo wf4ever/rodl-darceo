@@ -7,7 +7,7 @@ import org.openrdf.rio.RDFFormat;
 
 import pl.psnc.dl.wf4ever.dl.ResourceMetadata;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectComponentSerializable;
-
+import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
 
 public class ResearchObjectComponent implements ResearchObjectComponentSerializable {
 
@@ -55,6 +55,34 @@ public class ResearchObjectComponent implements ResearchObjectComponentSerializa
 
     @Override
     public InputStream getPublicGraphAsInputStream(RDFFormat syntax) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    @Override
+    public ResearchObjectSerializable getResearchObject() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    @Override
+    public boolean isInternal() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+
+    @Override
+    public String getPath() {
         // TODO Auto-generated method stub
         return null;
     }

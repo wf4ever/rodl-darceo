@@ -25,7 +25,8 @@ public class ResearchObjectSerializableMock implements ResearchObjectSerializabl
         this.resources = resources;
         this.serializables = new HashSet<>();
         for (String resource : this.resources) {
-            serializables.add(new ResearchObjectComponentSerializableMock(resource, dirPath));
+            serializables.add(new ResearchObjectComponentSerializableMock(resource,
+                    resource.substring(dirPath.length())));
         }
         if (id == null) {
             id = URI.create(UUID.randomUUID().toString());
