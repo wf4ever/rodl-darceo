@@ -1,7 +1,6 @@
 package pl.psnc.dl.wf4ever.darceo.client;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -120,7 +119,7 @@ public class DArceoClient implements RepositoryClient {
 
 
     @Override
-    public InputStream getBlocking(URI id) {
+    public ResearchObjectSerializable getBlocking(URI id) {
         String idEncoded = null;
         try {
             //URLEncoder encodes " " as "+" but it's no problem if we give it a URI which is always encoded
@@ -131,7 +130,7 @@ public class DArceoClient implements RepositoryClient {
         WebResource webResource = client.resource(repositoryUri).path(idEncoded);
         ClientResponse response = webResource.get(ClientResponse.class);
         if (response.getStatus() == HttpStatus.SC_OK) {
-            return response.getEntityInputStream();
+            return IO.toResearchObject(id, response.getEntityInputStream());
         } else if (response.getStatus() == HttpStatus.SC_ACCEPTED) {
             webResource = client.resource(response.getLocation().toString());
             response = webResource.get(ClientResponse.class);
@@ -145,7 +144,7 @@ public class DArceoClient implements RepositoryClient {
             }
             if (response.getStatus() == HttpStatus.SC_SEE_OTHER) {
                 webResource = client.resource(response.getLocation().toString());
-                return webResource.get(ClientResponse.class).getEntityInputStream();
+                return IO.toResearchObject(id, webResource.get(ClientResponse.class).getEntityInputStream());
             }
         } else if (response.getStatus() == HttpStatus.SC_NOT_FOUND) {
             return null;

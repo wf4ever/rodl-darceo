@@ -1,15 +1,10 @@
 package pl.psnc.dl.wf4ever.darceo.client;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import junit.framework.Assert;
 
@@ -75,26 +70,21 @@ public class TestDArceoClient {
         Assert.assertNotNull(id);
 
         //GET 
-        File tmpFile = File.createTempFile("darceo", "zip");
-        FileOutputStream out = new FileOutputStream(tmpFile);
-        IOUtils.copy(DArceoClient.getInstance().getBlocking(id), out);
-        out.flush();
-        out.close();
-        @SuppressWarnings("resource")
-        ZipFile zipFile = new ZipFile(tmpFile);
-        for (String expectedResource : expectedResources) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            boolean hasEntry = false;
-            while (entries.hasMoreElements()) {
-                if (("content/" + (expectedResource.toString().split("mock/simple/content/simple/")[1])).equals(entries
-                        .nextElement().getName())) {
-                    hasEntry = true;
-                    break;
-                }
-            }
-            Assert.assertTrue("expected entry: " + expectedResource + " is not in the returned structure", hasEntry);
-        }
-        tmpFile.delete();
+        ResearchObjectSerializable returnedRO = DArceoClient.getInstance().getBlocking(id);
+        Assert.assertNotNull("RO couldn't be reterived", returnedRO);
+        Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve(".ro/manifest.rdf")));
+        Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve(".ro/evo_info.ttl")));
+        Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve("1.txt")));
+        Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve("2.txt")));
+
+        String txt1content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("mock/1.txt"));
+        String txt2content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("mock/2.txt"));
+        String txtSerialziation1content = IOUtils.toString(returnedRO.getSerializables()
+                .get(returnedRO.getUri().resolve("1.txt")).getSerialization());
+        String txtSerialziation2content = IOUtils.toString(returnedRO.getSerializables()
+                .get(returnedRO.getUri().resolve("2.txt")).getSerialization());
+        Assert.assertEquals(txt1content, txtSerialziation1content);
+        Assert.assertEquals(txt2content, txtSerialziation2content);
         //GET Test
         Assert.assertNull(DArceoClient.getInstance().getBlocking(id.resolve("wrong-id")));
 

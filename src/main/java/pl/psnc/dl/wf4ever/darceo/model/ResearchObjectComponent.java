@@ -9,53 +9,75 @@ import pl.psnc.dl.wf4ever.dl.ResourceMetadata;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectComponentSerializable;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
 
+/**
+ * Stored and retrieved in dArceo Research Object Component. Aggregated by ResearchObjectSerialziable;
+ * 
+ */
 public class ResearchObjectComponent implements ResearchObjectComponentSerializable {
 
-    @Override
-    public URI getUri() {
-        // TODO Auto-generated method stub
-        return null;
+    /** Component uri. */
+    URI uri;
+
+    /** Serialization. */
+    InputStream serialziation;
+
+
+    /**
+     * Constructor.
+     * 
+     * @param uri
+     *            uri
+     * @param serialization
+     *            serialization (null in case of external resources)
+     */
+    public ResearchObjectComponent(URI uri, InputStream serialization) {
+        this.uri = uri;
+        this.serialziation = serialization;
     }
 
 
     @Override
+    public URI getUri() {
+        return this.uri;
+    }
+
+
+    @Override
+    public InputStream getSerialization() {
+        return this.serialziation;
+    }
+
+
+    //TODO
+    //should they throw not implement?
+    //should be moved?
+
+    @Override
     public URI getUri(RDFFormat format) {
-        // TODO Auto-generated method stub
         return null;
     }
 
 
     @Override
     public ResourceMetadata getStats() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-
-    @Override
-    public InputStream getSerialization() {
-        // TODO Auto-generated method stub
         return null;
     }
 
 
     @Override
     public InputStream getGraphAsInputStream(RDFFormat syntax) {
-        // TODO Auto-generated method stub
         return null;
     }
 
 
     @Override
     public boolean isNamedGraph() {
-        // TODO Auto-generated method stub
         return false;
     }
 
 
     @Override
     public InputStream getPublicGraphAsInputStream(RDFFormat syntax) {
-        // TODO Auto-generated method stub
         return null;
     }
 
