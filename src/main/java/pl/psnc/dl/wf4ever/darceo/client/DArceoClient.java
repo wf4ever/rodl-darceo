@@ -34,8 +34,6 @@ import com.sun.jersey.api.client.WebResource;
  */
 public class DArceoClient implements RepositoryClient {
 
-    //TODO replace or deprecated method on ... ?
-
     /** logger. */
     private static final Logger LOGGER = Logger.getLogger(TestDArceoClient.class);
     /** Singleton instance. */
@@ -122,7 +120,7 @@ public class DArceoClient implements RepositoryClient {
 
 
     @Override
-    public InputStream get(URI id) {
+    public InputStream getBlocking(URI id) {
         String idEncoded = null;
         try {
             //URLEncoder encodes " " as "+" but it's no problem if we give it a URI which is always encoded
@@ -132,12 +130,12 @@ public class DArceoClient implements RepositoryClient {
         }
         WebResource webResource = client.resource(repositoryUri).path(idEncoded);
         ClientResponse response = webResource.get(ClientResponse.class);
-        if (response.getStatus() == 200) {
+        if (response.getStatus() == HttpStatus.SC_OK) {
             return response.getEntityInputStream();
-        } else if (response.getStatus() == 202) {
+        } else if (response.getStatus() == HttpStatus.SC_ACCEPTED) {
             webResource = client.resource(response.getLocation().toString());
             response = webResource.get(ClientResponse.class);
-            while (response.getStatus() == 200) {
+            while (response.getStatus() == HttpStatus.SC_OK) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -145,13 +143,14 @@ public class DArceoClient implements RepositoryClient {
                 }
                 response = webResource.get(ClientResponse.class);
             }
-            if (response.getStatus() == 303) {
+            if (response.getStatus() == HttpStatus.SC_SEE_OTHER) {
                 webResource = client.resource(response.getLocation().toString());
                 return webResource.get(ClientResponse.class).getEntityInputStream();
             }
+        } else if (response.getStatus() == HttpStatus.SC_NOT_FOUND) {
+            return null;
         }
-        //FIXME shouldn't we log the response if it was unexpected? Or throw an exception instead of returning null?
-        return null;
+        throw new RuntimeException(new DArceoException("Unexpected return code: " + response.getClientResponseStatus()));
     }
 
 
@@ -181,17 +180,16 @@ public class DArceoClient implements RepositoryClient {
         } else if (response.getStatus() == HttpStatus.SC_NOT_FOUND) {
             return null;
         }
-        //        throw new DArceoException("Unexpected return code: " + response.getClientResponseStatus());
-        return null;
+        throw new RuntimeException(new DArceoException("Unexpected return code: " + response.getClientResponseStatus()));
     }
 
 
     @Override
-    public URI postWait(URI status) {
+    public URI postBlocking(URI status) {
         WebResource webResource = client.resource(status.toString());
         ClientResponse response = webResource.get(ClientResponse.class);
 
-        while (response.getStatus() == 200) {
+        while (response.getStatus() == HttpStatus.SC_OK) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -201,32 +199,36 @@ public class DArceoClient implements RepositoryClient {
             response = webResource.get(ClientResponse.class);
         }
         //POST Test
-        if (response.getStatus() == 303) {
+        if (response.getStatus() == HttpStatus.SC_SEE_OTHER) {
             webResource = client.resource(response.getLocation().toString());
             return URI.create(webResource.get(String.class));
         }
-        return null;
+        throw new RuntimeException(new DArceoException("Unexpected return code: " + response.getClientResponseStatus()));
     }
 
 
     @Override
     //FIXME get is synchronous, delete is asynchronous but deleteWait is synchronous. I think the convention would be to call them getBlocking, delete and deleteBlocking
-    public boolean deleteWait(URI status) {
+    public boolean deleteBlocking(URI status) {
         WebResource webResource = client.resource(status);
         ClientResponse response = webResource.get(ClientResponse.class);
-        while (response.getStatus() == 200) {
-            //FIXME Thread.sleep()
+        while (response.getStatus() == HttpStatus.SC_OK) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                LOGGER.warn("Sleep interrupted", e);
+            }
             response = webResource.get(ClientResponse.class);
         }
-        if (response.getStatus() == 303) {
+        if (response.getStatus() == HttpStatus.SC_SEE_OTHER) {
             webResource = client.resource(response.getLocation());
             response = webResource.get(ClientResponse.class);
-            if (response.getStatus() == 200) {
+            if (response.getStatus() == HttpStatus.SC_OK) {
                 return true;
             }
-
+        } else if (response.getStatus() == HttpStatus.SC_NOT_FOUND) {
+            return false;
         }
-        //FIXME what does "false" mean? better throw an exception
-        return false;
+        throw new RuntimeException(new DArceoException("Unexpected return code: " + response.getClientResponseStatus()));
     }
 }

@@ -44,26 +44,27 @@ public class TestIO {
         InputStream input = IO.toZipInputStream(ro);
         File tmpFile = File.createTempFile("testIOtoZipInputStream", ".zip");
         IOUtils.copy(input, new FileOutputStream(tmpFile));
-        ZipFile zipFile = new ZipFile(tmpFile);
+        try (ZipFile zipFile = new ZipFile(tmpFile)) {
+            //check resources
+            Assert.assertTrue("Zip doesn't contain entry: content/1.txt", hasEntry(zipFile.entries(), "content/1.txt"));
+            Assert.assertTrue("Zip doesn't contain entry: content/2.txt", hasEntry(zipFile.entries(), "content/2.txt"));
+            Assert.assertTrue("Zip doesn't contain entry: content/.ro/manifest.rdf",
+                hasEntry(zipFile.entries(), "content/.ro/manifest.rdf"));
+            Assert.assertTrue("Zip doesn't contain entry: content/.ro/evo_info.ttl",
+                hasEntry(zipFile.entries(), "content/.ro/evo_info.ttl"));
 
-        //check resources
-        Assert.assertTrue("Zip doesn't contain entry: content/1.txt", hasEntry(zipFile.entries(), "content/1.txt"));
-        Assert.assertTrue("Zip doesn't contain entry: content/2.txt", hasEntry(zipFile.entries(), "content/2.txt"));
-        Assert.assertTrue("Zip doesn't contain entry: content/.ro/manifest.rdf",
-            hasEntry(zipFile.entries(), "content/.ro/manifest.rdf"));
-        Assert.assertTrue("Zip doesn't contain entry: content/.ro/evo_info.ttl",
-            hasEntry(zipFile.entries(), "content/.ro/evo_info.ttl"));
-
-        //check metadata
-        Assert.assertTrue("Zip doesn't contain entry: metadata/id.mets",
-            hasEntry(zipFile.entries(), "metadata/id.mets"));
-        //check folders
-        Assert.assertTrue("Zip doesn't contain entry: " + "content/", hasEntry(zipFile.entries(), "content/"));
-        Assert.assertTrue("Zip doesn't contain entry: " + "content/.ro/", hasEntry(zipFile.entries(), "content/.ro/"));
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            System.out.println(entry.getName());
+            //check metadata
+            Assert.assertTrue("Zip doesn't contain entry: metadata/id.mets",
+                hasEntry(zipFile.entries(), "metadata/id.mets"));
+            //check folders
+            Assert.assertTrue("Zip doesn't contain entry: " + "content/", hasEntry(zipFile.entries(), "content/"));
+            Assert.assertTrue("Zip doesn't contain entry: " + "content/.ro/",
+                hasEntry(zipFile.entries(), "content/.ro/"));
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                System.out.println(entry.getName());
+            }
         }
     }
 

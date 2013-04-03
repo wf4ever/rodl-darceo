@@ -71,13 +71,13 @@ public class TestDArceoClient {
 
         URI statusURI = DArceoClient.getInstance().post(ro);
         Assert.assertNotNull(statusURI);
-        URI id = DArceoClient.getInstance().postWait(statusURI);
+        URI id = DArceoClient.getInstance().postBlocking(statusURI);
         Assert.assertNotNull(id);
 
         //GET 
         File tmpFile = File.createTempFile("darceo", "zip");
         FileOutputStream out = new FileOutputStream(tmpFile);
-        IOUtils.copy(DArceoClient.getInstance().get(id), out);
+        IOUtils.copy(DArceoClient.getInstance().getBlocking(id), out);
         out.flush();
         out.close();
         @SuppressWarnings("resource")
@@ -96,11 +96,11 @@ public class TestDArceoClient {
         }
         tmpFile.delete();
         //GET Test
-        Assert.assertNull(DArceoClient.getInstance().get(id.resolve("wrong-id")));
+        Assert.assertNull(DArceoClient.getInstance().getBlocking(id.resolve("wrong-id")));
 
         //DELETE
         //DELETE Test
         Assert.assertNull(DArceoClient.getInstance().delete(id.resolve("wrong-id")));
-        Assert.assertTrue(DArceoClient.getInstance().deleteWait(DArceoClient.getInstance().delete(id)));
+        Assert.assertTrue(DArceoClient.getInstance().deleteBlocking(DArceoClient.getInstance().delete(id)));
     }
 }
