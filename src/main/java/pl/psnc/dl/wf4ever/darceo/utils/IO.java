@@ -233,10 +233,10 @@ public final class IO {
                     InputStream entryInput = zipFile.getInputStream(new ZipEntry("content/.ro/manifest.rdf"));
                     researchObject.addSerializable(new ResearchObjectComponent(id.resolve(".ro/manifest.rdf"),
                             entryInput));
-                    zipFile.close();
                     break;
                 } catch (IOException e) {
                     LOGGER.error("can't load the manifest from zip for RO " + id, e);
+                    tmpZipFile.delete();
                     return researchObject;
                 }
             }

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import junit.framework.Assert;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -69,8 +70,20 @@ public class TestDArceoClient {
 
         //GET 
         ResearchObjectSerializable returnedRO = DArceoClient.getInstance().get(id);
-        //@TODO check if the returned ro has all components;
         Assert.assertNotNull("RO couldn't be reterived", returnedRO);
+        Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve(".ro/manifest.rdf")));
+        Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve(".ro/evo_info.ttl")));
+        Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve("1.txt")));
+        Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve("2.txt")));
+
+        String txt1content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("mock/1.txt"));
+        String txt2content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("mock/2.txt"));
+        String txtSerialziation1content = IOUtils.toString(returnedRO.getSerializables()
+                .get(returnedRO.getUri().resolve("1.txt")).getSerialization());
+        String txtSerialziation2content = IOUtils.toString(returnedRO.getSerializables()
+                .get(returnedRO.getUri().resolve("2.txt")).getSerialization());
+        Assert.assertEquals(txt1content, txtSerialziation1content);
+        Assert.assertEquals(txt2content, txtSerialziation2content);
         //GET Test
         Assert.assertNull(DArceoClient.getInstance().get(id.resolve("wrong-id")));
 
