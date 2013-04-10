@@ -59,7 +59,7 @@
 			<type>pom</type>
 		</dependency>
 	</dependencies>
-	<build>
+		<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -70,6 +70,28 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>2.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.3.2</version>
+			</plugin>
 		</plugins>
 	</build>
+	<scm>
+		<developerConnection>scm:git:git@github.com:wf4ever/rodl-darceo.git</developerConnection>
+	</scm>
+	<distributionManagement>
+		<repository>
+			<id>dlibra-releases</id>
+			<url>http://maven.man.poznan.pl/repository/dlibra-libs-releases-public/</url>
+		</repository>
+		<snapshotRepository>
+			<id>dlibra-snapshots</id>
+			<url>http://maven.man.poznan.pl/repository/dlibra-libs-snapshots-public/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
