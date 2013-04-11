@@ -34,7 +34,7 @@ import com.sun.jersey.api.client.WebResource;
 public class DArceoClient implements RepositoryClient {
 
     /** logger. */
-    private static final Logger LOGGER = Logger.getLogger(TestDArceoClient.class);
+    private static final Logger LOGGER = Logger.getLogger(DArceoClient.class);
     /** Singleton instance. */
     protected static DArceoClient instance;
     /** Repository URL. */
