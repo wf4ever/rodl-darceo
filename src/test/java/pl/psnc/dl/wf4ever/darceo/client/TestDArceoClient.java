@@ -63,7 +63,7 @@ public class TestDArceoClient {
 
     private void crud(ResearchObjectSerializable ro, List<String> expectedResources)
             throws IOException, DArceoException {
-
+        //POST
         URI statusURI = DArceoClient.getInstance().post(ro);
         Assert.assertNotNull(statusURI);
         URI id = DArceoClient.getInstance().postORUpdateBlocking(statusURI);
@@ -71,6 +71,7 @@ public class TestDArceoClient {
 
         //GET 
         ResearchObjectSerializable returnedRO = DArceoClient.getInstance().getBlocking(id);
+        System.out.println(returnedRO.getSerializables());
         Assert.assertNotNull("RO couldn't be reterived", returnedRO);
         Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve(".ro/manifest.rdf")));
         Assert.assertNotNull(returnedRO.getSerializables().get(returnedRO.getUri().resolve(".ro/evo_info.ttl")));
@@ -79,6 +80,7 @@ public class TestDArceoClient {
 
         String txt1content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("mock/1.txt"));
         String txt2content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("mock/2.txt"));
+
         String txtSerialziation1content = IOUtils.toString(returnedRO.getSerializables()
                 .get(returnedRO.getUri().resolve("1.txt")).getSerialization());
         String txtSerialziation2content = IOUtils.toString(returnedRO.getSerializables()
@@ -88,6 +90,29 @@ public class TestDArceoClient {
         //GET Test
         Assert.assertNull(DArceoClient.getInstance().getBlocking(id.resolve("wrong-id")));
 
+        //UPDATE
+        List<String> roContent = new ArrayList<String>();
+        String path2 = "mock/simple/content/simple/.ro/manifest.rdf";
+        String path1 = "mock/simple/content/simple/.ro/evo_info.ttl";
+        String path = "mock/simple/content/simple/3.txt";
+        roContent.add(path);
+        roContent.add(path1);
+        roContent.add(path2);
+        ResearchObjectSerializable roToUpdate = new ResearchObjectSerializableMock(roContent,
+                "mock/simple/content/simple/", id);
+
+        URI updateStatus = DArceoClient.getInstance().update(roToUpdate);
+        Assert.assertNotNull(updateStatus);
+        URI updateId = DArceoClient.getInstance().postORUpdateBlocking(statusURI);
+        Assert.assertNotNull(id);
+        Assert.assertEquals(id, updateId);
+
+        ResearchObjectSerializable updatedRO = DArceoClient.getInstance().getBlocking(updateId);
+        System.out.println("******");
+        System.out.println(updatedRO.getSerializables());
+        System.out.println("******");
+        //Assert.assertNotNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("3.txt")));
+        //Assert.assertNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("1.txt")));
         //DELETE
         //DELETE Test
         Assert.assertNull(DArceoClient.getInstance().delete(id.resolve("wrong-id")));
