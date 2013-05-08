@@ -54,4 +54,10 @@ public class ResearchObjectSerializableMock implements ResearchObjectSerializabl
         return uri;
     }
 
+
+    @Override
+    public void updateIndexAttributes() {
+        //nope
+    }
+
 }

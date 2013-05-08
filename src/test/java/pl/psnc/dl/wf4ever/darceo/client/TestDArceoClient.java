@@ -66,7 +66,7 @@ public class TestDArceoClient {
 
         URI statusURI = DArceoClient.getInstance().post(ro);
         Assert.assertNotNull(statusURI);
-        URI id = DArceoClient.getInstance().postBlocking(statusURI);
+        URI id = DArceoClient.getInstance().postORUpdateBlocking(statusURI);
         Assert.assertNotNull(id);
 
         //GET 

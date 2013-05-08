@@ -184,7 +184,7 @@ public class DArceoClient implements RepositoryClient {
 
 
     @Override
-    public URI postBlocking(URI status) {
+    public URI postORUpdateBlocking(URI status) {
         WebResource webResource = client.resource(status.toString());
         ClientResponse response = webResource.get(ClientResponse.class);
 
@@ -229,5 +229,21 @@ public class DArceoClient implements RepositoryClient {
             return false;
         }
         throw new RuntimeException(new DArceoException("Unexpected return code: " + response.getClientResponseStatus()));
+    }
+
+
+    @Override
+    public URI update(ResearchObjectSerializable researchObject) {
+        WebResource webResource;
+        try {
+            webResource = client.resource(repositoryUri.resolve(URLEncoder.encode(researchObject.getUri().toString(),
+                "UTF-8")));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("Can't encode " + researchObject.getUri().toString() + " to update ro in dArce", e);
+            return null;
+        }
+        ClientResponse response = webResource.type("application/zip").post(ClientResponse.class,
+            IO.toZipInputStream(researchObject));
+        return response.getLocation();
     }
 }

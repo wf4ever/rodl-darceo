@@ -63,4 +63,10 @@ public class ResearchObject implements ResearchObjectSerializable {
         this.serializables.put(component.getUri(), component);
     }
 
+
+    @Override
+    public void updateIndexAttributes() {
+        //useless
+    }
+
 }
