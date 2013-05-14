@@ -103,11 +103,11 @@ public class TestDArceoClient {
                 "mock/simple/content/simple_update/", id);
 
         URI updateStatus = DArceoClient.getInstance().update(roToUpdate);
-        URI updateId = DArceoClient.getInstance().postORUpdateBlocking(statusURI);
+        URI updateId = DArceoClient.getInstance().postORUpdateBlocking(updateStatus);
         Assert.assertNotNull(id);
-        Assert.assertEquals(id, updateId);
+        Assert.assertEquals(URI.create("2"), updateId);
 
-        ResearchObjectSerializable updatedRO = DArceoClient.getInstance().getBlocking(updateId);
+        ResearchObjectSerializable updatedRO = DArceoClient.getInstance().getBlocking(id);
         Assert.assertNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("1.txt")));
         Assert.assertNotNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("3.txt")));
         //DELETE
