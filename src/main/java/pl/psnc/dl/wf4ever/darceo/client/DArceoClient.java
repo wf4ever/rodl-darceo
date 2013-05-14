@@ -1,7 +1,5 @@
 package pl.psnc.dl.wf4ever.darceo.client;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -19,7 +17,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 
@@ -190,7 +187,6 @@ public class DArceoClient implements RepositoryClient {
     public URI postORUpdateBlocking(URI status) {
         WebResource webResource = client.resource(status.toString());
         ClientResponse response = webResource.get(ClientResponse.class);
-
         while (response.getStatus() == HttpStatus.SC_OK) {
             try {
                 Thread.sleep(100);
@@ -244,12 +240,6 @@ public class DArceoClient implements RepositoryClient {
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("Can't encode " + researchObject.getUri().toString() + " to update ro in dArce", e);
             return null;
-        }
-        try {
-            IOUtils.copy(IO.toZipInputStream(researchObject), new FileOutputStream(new File("/home/pejot/pierdy.zip")));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
         ClientResponse response = webResource.type("application/zip").post(ClientResponse.class,
             IO.toZipInputStream(researchObject));
