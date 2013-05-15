@@ -92,35 +92,6 @@ public final class IO {
     }
 
 
-    public static InputStream toUpdateZipInputStream(ResearchObjectSerializable researchObject) {
-        File tmpFile = null;
-        Set<String> entries = new HashSet<>();
-        try {
-            tmpFile = File.createTempFile("dArceoArtefact", ".zip");
-            tmpFile.deleteOnExit();
-            ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(tmpFile));
-            for (ResearchObjectComponentSerializable component : researchObject.getSerializables().values()) {
-                Path componentPath = Paths.get(CONTENT_PATH, component.getPath());
-                putEntryAndDirectoriesPath(zipOutput, componentPath.toString(), component.getSerialization(), entries);
-            }
-            //add metadata
-            //putMetadataId(zipOutput, entries, researchObject.getUri());
-            zipOutput.flush();
-            zipOutput.close();
-            InputStream result = new FileInputStream(tmpFile);
-            tmpFile.delete();
-            return result;
-        } catch (IOException e) {
-            LOGGER.error("Can't prepare a RO " + researchObject.getUri() + " for dArceo", e);
-            if (tmpFile != null) {
-                tmpFile.delete();
-            }
-            return null;
-        }
-
-    }
-
-
     /**
      * Add to the package metadata file containing RO id.
      * 

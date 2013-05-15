@@ -154,15 +154,6 @@ public class DArceoClient implements RepositoryClient {
 
 
     @Override
-    public URI post(ResearchObjectSerializable researchObject) {
-        WebResource webResource = client.resource(repositoryUri);
-        ClientResponse response = webResource.type("application/zip").post(ClientResponse.class,
-            IO.toZipInputStream(researchObject));
-        return response.getLocation();
-    }
-
-
-    @Override
     public URI delete(URI id) {
         String idEncoded = null;
         try {
@@ -228,6 +219,15 @@ public class DArceoClient implements RepositoryClient {
             return false;
         }
         throw new RuntimeException(new DArceoException("Unexpected return code: " + response.getClientResponseStatus()));
+    }
+
+
+    @Override
+    public URI post(ResearchObjectSerializable researchObject) {
+        WebResource webResource = client.resource(repositoryUri);
+        ClientResponse response = webResource.type("application/zip").post(ClientResponse.class,
+            IO.toZipInputStream(researchObject));
+        return response.getLocation();
     }
 
 

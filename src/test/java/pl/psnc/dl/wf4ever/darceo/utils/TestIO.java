@@ -18,7 +18,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import pl.psnc.dl.wf4ever.darceo.model.mock.ResearchObjectSerializableMock;
-import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectComponentSerializable;
 import pl.psnc.dl.wf4ever.preservation.model.ResearchObjectSerializable;
 
 public class TestIO {
@@ -64,7 +63,6 @@ public class TestIO {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                System.out.println(entry.getName());
             }
         }
     }
@@ -75,10 +73,6 @@ public class TestIO {
         URI id = URI.create("http://www.example.com/ROs/simple/");
         ResearchObjectSerializable ro = IO.toResearchObject(id,
             getClass().getClassLoader().getResourceAsStream("simple.zip"));
-        //check the content of the returned ro
-        for (ResearchObjectComponentSerializable component : ro.getSerializables().values()) {
-            System.out.println(component.getUri());
-        }
         Assert.assertNotNull(ro.getSerializables().get(id.resolve("1.txt")));
         Assert.assertNotNull(ro.getSerializables().get(id.resolve("2.txt")));
         Assert.assertNotNull(ro.getSerializables().get(id.resolve(".ro/manifest.rdf")));
