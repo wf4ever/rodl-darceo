@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.jms.JMSException;
+
 import junit.framework.Assert;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import pl.psnc.dl.wf4ever.darceo.model.mock.ResearchObjectSerializableMock;
@@ -118,6 +121,14 @@ public class TestDArceoClient {
         //DELETE Test
         Assert.assertNull(DArceoClient.getInstance().delete(id.resolve("wrong-id")));
         Assert.assertTrue(DArceoClient.getInstance().deleteBlocking(DArceoClient.getInstance().delete(id)));
+    }
+
+
+    @Ignore
+    @Test
+    public void testJMS()
+            throws JMSException, DArceoException, IOException {
+        ((DArceoClient) DArceoClient.getInstance()).jms();
     }
 
 }
