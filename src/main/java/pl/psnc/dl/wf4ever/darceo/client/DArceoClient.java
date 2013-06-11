@@ -46,7 +46,7 @@ public class DArceoClient implements RepositoryClient {
     /** logger. */
     private static final Logger LOGGER = Logger.getLogger(DArceoClient.class);
     /** Singleton instance. */
-    protected static DArceoClient instance;
+    protected static RepositoryClient instance;
     /** Repository URL. */
     private static URI repositoryUri;
     /** Jersey client. */
@@ -90,6 +90,28 @@ public class DArceoClient implements RepositoryClient {
     }
 
 
+    /**
+     * Check if dArceo configuration exists
+     * 
+     * @return
+     * @throws IOException
+     */
+    private static boolean propertiesExists()
+            throws IOException {
+        Properties properties = new Properties();
+        properties.load(DArceoClient.class.getClassLoader().getResourceAsStream("connection.properties"));
+        if ((properties.getProperty("repository_url") == null)
+                || (properties.getProperty("repository_url").toString().equals("")
+                        || (properties.getProperty("client_keystore") == null)
+                        || (properties.getProperty("client_passphrase").toCharArray() == null)
+                        || (properties.getProperty("server_keystore") == null) || (properties
+                        .getProperty("server_passphrase").toCharArray()) == null)) {
+            return false;
+        }
+        return true;
+    }
+
+
     protected void setSSL(String clientKeystore, char[] clientPassphrase, String serverKeystore, char[] serverPassphrase)
             throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException,
             UnrecoverableKeyException, KeyManagementException {
@@ -119,10 +141,51 @@ public class DArceoClient implements RepositoryClient {
      * @throws IOException
      * @throws DArceoException
      */
-    public static DArceoClient getInstance()
+    public static RepositoryClient getInstance()
             throws DArceoException, IOException {
         if (instance == null) {
-            return new DArceoClient();
+            if (!propertiesExists()) {
+                instance = new RepositoryClient() {
+
+                    @Override
+                    public URI delete(URI arg0) {
+                        return null;
+                    }
+
+
+                    @Override
+                    public boolean deleteBlocking(URI arg0) {
+                        return false;
+                    }
+
+
+                    @Override
+                    public ResearchObjectSerializable getBlocking(URI arg0) {
+                        return null;
+                    }
+
+
+                    @Override
+                    public URI post(ResearchObjectSerializable arg0) {
+                        return null;
+                    }
+
+
+                    @Override
+                    public URI postORUpdateBlocking(URI arg0) {
+                        return null;
+                    }
+
+
+                    @Override
+                    public URI update(ResearchObjectSerializable arg0) {
+                        return null;
+                    }
+
+                };
+            } else {
+                instance = new DArceoClient();
+            }
         }
         return instance;
     }
@@ -270,7 +333,6 @@ public class DArceoClient implements RepositoryClient {
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
         Topic topic = session.createTopic("topic/info/zmd-object");
-
         MessageConsumer consumer = session.createConsumer(topic);
 
         MessageListener listner = new MessageListener() {

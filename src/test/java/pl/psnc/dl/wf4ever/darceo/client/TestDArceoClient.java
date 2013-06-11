@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.jms.JMSException;
-
 import junit.framework.Assert;
 
 import org.apache.commons.io.IOUtils;
@@ -122,10 +120,4 @@ public class TestDArceoClient {
         Assert.assertTrue(DArceoClient.getInstance().deleteBlocking(DArceoClient.getInstance().delete(id)));
     }
 
-
-    @Test
-    public void testJMS()
-            throws JMSException, DArceoException, IOException {
-        DArceoClient.getInstance().jms();
-    }
 }
