@@ -145,6 +145,7 @@ public class DArceoClient implements RepositoryClient {
             throws DArceoException, IOException {
         if (instance == null) {
             if (!propertiesExists()) {
+                LOGGER.warn("There is no preservations properties. Repository  will not be preserved");
                 instance = new BlankClient();
             } else {
                 instance = new DArceoClient();
