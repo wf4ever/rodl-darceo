@@ -145,44 +145,7 @@ public class DArceoClient implements RepositoryClient {
             throws DArceoException, IOException {
         if (instance == null) {
             if (!propertiesExists()) {
-                instance = new RepositoryClient() {
-
-                    @Override
-                    public URI delete(URI arg0) {
-                        return null;
-                    }
-
-
-                    @Override
-                    public boolean deleteBlocking(URI arg0) {
-                        return false;
-                    }
-
-
-                    @Override
-                    public ResearchObjectSerializable getBlocking(URI arg0) {
-                        return null;
-                    }
-
-
-                    @Override
-                    public URI post(ResearchObjectSerializable arg0) {
-                        return null;
-                    }
-
-
-                    @Override
-                    public URI postORUpdateBlocking(URI arg0) {
-                        return null;
-                    }
-
-
-                    @Override
-                    public URI update(ResearchObjectSerializable arg0) {
-                        return null;
-                    }
-
-                };
+                instance = new BlankClient();
             } else {
                 instance = new DArceoClient();
             }
@@ -320,6 +283,11 @@ public class DArceoClient implements RepositoryClient {
     }
 
 
+    /**
+     * Just an outline/example of how to connect to jms queue
+     * 
+     * @throws JMSException
+     */
     public void jms()
             throws JMSException {
         // Name of the topic from which we will receive messages from = " testt"
