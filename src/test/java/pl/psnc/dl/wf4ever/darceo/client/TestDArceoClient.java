@@ -112,11 +112,11 @@ public class TestDArceoClient {
 
         ResearchObjectSerializable updatedRO = DArceoClient.getInstance().getBlocking(id);
         Assert.assertNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("1.txt")));
-        //Assert.assertNotNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("3.txt")));
-        //String txtSerialziation3content = IOUtils.toString(updatedRO.getSerializables()
-        //        .get(returnedRO.getUri().resolve("3.txt")).getSerialization());
-        //Assert.assertEquals(txt3content, txtSerialziation3content);
-        //DELETE
+        Assert.assertNotNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("3.txt")));
+        String txtSerialziation3content = IOUtils.toString(updatedRO.getSerializables()
+                .get(returnedRO.getUri().resolve("3.txt")).getSerialization());
+        Assert.assertEquals(txt3content, txtSerialziation3content);
+        ///DELETE
         //DELETE Test
         Assert.assertNull(DArceoClient.getInstance().delete(id.resolve("wrong-id")));
         Assert.assertTrue(DArceoClient.getInstance().deleteBlocking(DArceoClient.getInstance().delete(id)));
