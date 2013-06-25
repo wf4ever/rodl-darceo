@@ -12,21 +12,13 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Properties;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 
@@ -131,6 +123,13 @@ public class DArceoClient implements RepositoryClient {
         SSLContext sslContextd = SSLContext.getInstance("SSL");
         sslContextd.init(clientKeyManagerFactory.getKeyManagers(), serverKeyManagerFactory.getTrustManagers(), null);
         HttpsURLConnection.setDefaultSSLSocketFactory(sslContextd.getSocketFactory());
+        HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
     }
 
 
@@ -281,45 +280,5 @@ public class DArceoClient implements RepositoryClient {
         ClientResponse response = webResource.type("application/zip").post(ClientResponse.class,
             IO.toZipInputStream(researchObject));
         return response.getLocation();
-    }
-
-
-    /**
-     * Just an outline/example of how to connect to jms queue
-     * 
-     * @throws JMSException
-     */
-    public void jms()
-            throws JMSException {
-        // Name of the topic from which we will receive messages from = " testt"
-
-        // Getting JMS connection from the server
-
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://wrdz.synat.pcss.pl:3700");
-        Connection connection = connectionFactory.createConnection();
-        connection.start();
-
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        Topic topic = session.createTopic("topic/info/zmd-object");
-        MessageConsumer consumer = session.createConsumer(topic);
-
-        MessageListener listner = new MessageListener() {
-
-            public void onMessage(Message message) {
-                try {
-                    if (message instanceof TextMessage) {
-                        TextMessage textMessage = (TextMessage) message;
-                        System.out.println("Received message" + textMessage.getText() + "'");
-                    }
-                } catch (JMSException e) {
-                    System.out.println("Caught:" + e);
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        consumer.setMessageListener(listner);
-        connection.close();
     }
 }
