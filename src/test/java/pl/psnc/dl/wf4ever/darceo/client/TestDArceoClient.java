@@ -68,7 +68,7 @@ public class TestDArceoClient {
         Assert.assertNotNull(statusURI);
         URI id = DArceoClient.getInstance().postORUpdateBlocking(statusURI);
         Assert.assertNotNull(id);
-        Thread.sleep(1000);
+        Thread.sleep(2500);
         //GET 
         ResearchObjectSerializable returnedRO = DArceoClient.getInstance().getBlocking(id);
         Assert.assertNotNull("RO couldn't be reterived", returnedRO);
@@ -108,7 +108,7 @@ public class TestDArceoClient {
         URI updateId = DArceoClient.getInstance().postORUpdateBlocking(updateStatus);
         Assert.assertNotNull(id);
         Assert.assertEquals(URI.create("2"), updateId);
-        Thread.sleep(1000);
+        Thread.sleep(2500);
         ResearchObjectSerializable updatedRO = DArceoClient.getInstance().getBlocking(id);
         Assert.assertNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("1.txt")));
         Assert.assertNotNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("3.txt")));
