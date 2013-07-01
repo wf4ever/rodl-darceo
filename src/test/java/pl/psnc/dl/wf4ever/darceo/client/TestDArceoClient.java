@@ -38,7 +38,7 @@ public class TestDArceoClient {
 
     @Test
     public void testCRUDRO()
-            throws IOException, DArceoException {
+            throws IOException, DArceoException, InterruptedException {
         List<String> roContent = new ArrayList<String>();
         String path1 = "mock/simple/content/simple/1.txt";
         String path2 = "mock/simple/content/simple/2.txt";
@@ -62,13 +62,13 @@ public class TestDArceoClient {
     //TODO write more tests with the strange URIs to define expected exceptions in case of mistakes in URIs parameters. OK ;) ?
 
     private void crud(ResearchObjectSerializable ro, List<String> expectedResources)
-            throws IOException, DArceoException {
+            throws IOException, DArceoException, InterruptedException {
         //POST
         URI statusURI = DArceoClient.getInstance().post(ro);
         Assert.assertNotNull(statusURI);
         URI id = DArceoClient.getInstance().postORUpdateBlocking(statusURI);
         Assert.assertNotNull(id);
-
+        Thread.sleep(1000);
         //GET 
         ResearchObjectSerializable returnedRO = DArceoClient.getInstance().getBlocking(id);
         Assert.assertNotNull("RO couldn't be reterived", returnedRO);
@@ -81,7 +81,6 @@ public class TestDArceoClient {
         String txt1content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("mock/1.txt"));
         String txt2content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("mock/2.txt"));
         String txt3content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("mock/3.txt"));
-
         String txtSerialziation1content = IOUtils.toString(returnedRO.getSerializables()
                 .get(returnedRO.getUri().resolve("1.txt")).getSerialization());
         String txtSerialziation2content = IOUtils.toString(returnedRO.getSerializables()
@@ -109,7 +108,7 @@ public class TestDArceoClient {
         URI updateId = DArceoClient.getInstance().postORUpdateBlocking(updateStatus);
         Assert.assertNotNull(id);
         Assert.assertEquals(URI.create("2"), updateId);
-
+        Thread.sleep(1000);
         ResearchObjectSerializable updatedRO = DArceoClient.getInstance().getBlocking(id);
         Assert.assertNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("1.txt")));
         Assert.assertNotNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("3.txt")));
