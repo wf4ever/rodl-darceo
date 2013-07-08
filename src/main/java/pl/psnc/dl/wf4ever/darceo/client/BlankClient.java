@@ -48,4 +48,10 @@ public class BlankClient implements RepositoryClient {
         return null;
     }
 
+
+    @Override
+    public URI getServiceUri() {
+        return null;
+    }
+
 }

@@ -281,4 +281,10 @@ public class DArceoClient implements RepositoryClient {
             IO.toZipInputStream(researchObject));
         return response.getLocation();
     }
+
+
+    @Override
+    public URI getServiceUri() {
+        return repositoryUri;
+    }
 }
