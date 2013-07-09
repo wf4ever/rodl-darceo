@@ -2,6 +2,11 @@ package pl.psnc.dl.wf4ever.darceo.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,14 +36,16 @@ public class TestDArceoClient {
 
     @Test
     public void testSingleton()
-            throws DArceoException, IOException {
+            throws DArceoException, IOException, UnrecoverableKeyException, KeyManagementException, KeyStoreException,
+            NoSuchAlgorithmException, CertificateException {
         Assert.assertNotNull(DArceoClient.getInstance());
     }
 
 
     @Test
     public void testCRUDRO()
-            throws IOException, DArceoException, InterruptedException {
+            throws IOException, DArceoException, InterruptedException, UnrecoverableKeyException,
+            KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         List<String> roContent = new ArrayList<String>();
         String path1 = "mock/simple/content/simple/1.txt";
         String path2 = "mock/simple/content/simple/2.txt";
@@ -62,13 +69,14 @@ public class TestDArceoClient {
     //TODO write more tests with the strange URIs to define expected exceptions in case of mistakes in URIs parameters. OK ;) ?
 
     private void crud(ResearchObjectSerializable ro, List<String> expectedResources)
-            throws IOException, DArceoException, InterruptedException {
+            throws IOException, DArceoException, InterruptedException, UnrecoverableKeyException,
+            KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         //POST
         URI statusURI = DArceoClient.getInstance().post(ro);
         Assert.assertNotNull(statusURI);
         URI id = DArceoClient.getInstance().postORUpdateBlocking(statusURI);
         Assert.assertNotNull(id);
-        Thread.sleep(2500);
+        Thread.sleep(250);
         //GET 
         ResearchObjectSerializable returnedRO = DArceoClient.getInstance().getBlocking(id);
         Assert.assertNotNull("RO couldn't be reterived", returnedRO);
@@ -108,7 +116,7 @@ public class TestDArceoClient {
         URI updateId = DArceoClient.getInstance().postORUpdateBlocking(updateStatus);
         Assert.assertNotNull(id);
         Assert.assertEquals(URI.create("2"), updateId);
-        Thread.sleep(2500);
+        Thread.sleep(250);
         ResearchObjectSerializable updatedRO = DArceoClient.getInstance().getBlocking(id);
         Assert.assertNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("1.txt")));
         Assert.assertNotNull(updatedRO.getSerializables().get(updatedRO.getUri().resolve("3.txt")));

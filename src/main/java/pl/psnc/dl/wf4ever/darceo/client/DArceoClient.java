@@ -43,10 +43,10 @@ public class DArceoClient implements RepositoryClient {
     private static URI repositoryUri;
     /** Jersey client. */
     private Client client;
-    private String clientKeystore;
-    private char[] clientPassphrase;
-    private String serverKeystore;
-    private char[] serverPassphrase;
+    private static String clientKeystore;
+    private static char[] clientPassphrase;
+    private static String serverKeystore;
+    private static char[] serverPassphrase;
 
 
     /**
@@ -70,11 +70,20 @@ public class DArceoClient implements RepositoryClient {
     }
 
 
-    protected void loadProperties()
+    protected static void loadProperties()
             throws IOException {
         Properties properties = new Properties();
-        properties.load(getClass().getClassLoader().getResourceAsStream("connection.properties"));
+        properties.load(DArceoClient.class.getClassLoader().getResourceAsStream("connection.properties"));
         repositoryUri = URI.create(properties.getProperty("repository_url"));
+        loadSSLProperties();
+
+    }
+
+
+    protected static void loadSSLProperties()
+            throws IOException {
+        Properties properties = new Properties();
+        properties.load(DArceoClient.class.getClassLoader().getResourceAsStream("connection.properties"));
         clientKeystore = properties.getProperty("client_keystore");
         clientPassphrase = properties.getProperty("client_passphrase").toCharArray();
         serverKeystore = properties.getProperty("server_keystore");
@@ -86,32 +95,49 @@ public class DArceoClient implements RepositoryClient {
      * Check if dArceo configuration exists
      * 
      * @return
-     * @throws IOException
+     * @throws IOException .
      */
     private static boolean propertiesExists()
             throws IOException {
         Properties properties = new Properties();
         properties.load(DArceoClient.class.getClassLoader().getResourceAsStream("connection.properties"));
-        if ((properties.getProperty("repository_url") == null)
-                || (properties.getProperty("repository_url").toString().equals("")
-                        || (properties.getProperty("client_keystore") == null)
-                        || (properties.getProperty("client_passphrase").toCharArray() == null)
-                        || (properties.getProperty("server_keystore") == null) || (properties
-                        .getProperty("server_passphrase").toCharArray()) == null)) {
+        if ((properties.getProperty("repository_url") == null) || !sslPropertiesExists()) {
             return false;
         }
         return true;
     }
 
 
-    protected void setSSL(String clientKeystore, char[] clientPassphrase, String serverKeystore, char[] serverPassphrase)
+    /**
+     * Check if ssl configuration exists
+     * 
+     * @return
+     * @throws IOException .
+     */
+    private static boolean sslPropertiesExists()
+            throws IOException {
+        Properties properties = new Properties();
+        properties.load(DArceoClient.class.getClassLoader().getResourceAsStream("connection.properties"));
+        if ((properties.getProperty("repository_url").toString().equals("")
+                || (properties.getProperty("client_keystore") == null)
+                || (properties.getProperty("client_passphrase").toCharArray() == null)
+                || (properties.getProperty("server_keystore") == null) || (properties.getProperty("server_passphrase")
+                .toCharArray()) == null)) {
+            return false;
+        }
+        return true;
+    }
+
+
+    protected static void setSSL(String clientKeystore, char[] clientPassphrase, String serverKeystore,
+            char[] serverPassphrase)
             throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException,
             UnrecoverableKeyException, KeyManagementException {
         KeyStore clientStore = KeyStore.getInstance("PKCS12");
         KeyStore serverStore = KeyStore.getInstance("JKS");
 
-        clientStore.load(getClass().getClassLoader().getResourceAsStream(clientKeystore), clientPassphrase);
-        serverStore.load(getClass().getClassLoader().getResourceAsStream(serverKeystore), serverPassphrase);
+        clientStore.load(DArceoClient.class.getClassLoader().getResourceAsStream(clientKeystore), clientPassphrase);
+        serverStore.load(DArceoClient.class.getClassLoader().getResourceAsStream(serverKeystore), serverPassphrase);
 
         KeyManagerFactory clientKeyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory
                 .getDefaultAlgorithm());
@@ -139,12 +165,23 @@ public class DArceoClient implements RepositoryClient {
      * @return RepositoryClient instance.
      * @throws IOException
      * @throws DArceoException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws KeyStoreException
+     * @throws KeyManagementException
+     * @throws UnrecoverableKeyException
      */
     public static RepositoryClient getInstance()
-            throws DArceoException, IOException {
+            throws DArceoException, IOException, UnrecoverableKeyException, KeyManagementException, KeyStoreException,
+            NoSuchAlgorithmException, CertificateException {
         if (instance == null) {
             if (!propertiesExists()) {
                 LOGGER.warn("There is no preservations properties. Repository  will not be preserved");
+                if (sslPropertiesExists()) {
+                    loadSSLProperties();
+                    setSSL(clientKeystore, clientPassphrase, serverKeystore, serverPassphrase);
+
+                }
                 instance = new BlankClient();
             } else {
                 instance = new DArceoClient();
