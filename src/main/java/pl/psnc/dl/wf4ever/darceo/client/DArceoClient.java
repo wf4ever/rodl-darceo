@@ -172,15 +172,19 @@ public class DArceoClient implements RepositoryClient {
      * @throws UnrecoverableKeyException
      */
     public static RepositoryClient getInstance()
-            throws DArceoException, IOException, UnrecoverableKeyException, KeyManagementException, KeyStoreException,
-            NoSuchAlgorithmException, CertificateException {
+            throws DArceoException, IOException {
         if (instance == null) {
             if (!propertiesExists()) {
                 LOGGER.warn("There is no preservations properties. Repository  will not be preserved");
-                if (sslPropertiesExists()) {
-                    loadSSLProperties();
-                    setSSL(clientKeystore, clientPassphrase, serverKeystore, serverPassphrase);
+                try {
+                    if (sslPropertiesExists()) {
+                        loadSSLProperties();
+                        setSSL(clientKeystore, clientPassphrase, serverKeystore, serverPassphrase);
 
+                    }
+                } catch (UnrecoverableKeyException | KeyManagementException | KeyStoreException
+                        | NoSuchAlgorithmException | CertificateException | IOException e) {
+                    throw new DArceoException(e.getMessage(), e);
                 }
                 instance = new BlankClient();
             } else {
