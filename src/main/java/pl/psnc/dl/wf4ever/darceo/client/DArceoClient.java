@@ -118,11 +118,10 @@ public class DArceoClient implements RepositoryClient {
             throws IOException {
         Properties properties = new Properties();
         properties.load(DArceoClient.class.getClassLoader().getResourceAsStream("connection.properties"));
-        if ((properties.getProperty("repository_url").toString().equals("")
-                || (properties.getProperty("client_keystore") == null)
+        if ((properties.getProperty("client_keystore") == null)
                 || (properties.getProperty("client_passphrase").toCharArray() == null)
-                || (properties.getProperty("server_keystore") == null) || (properties.getProperty("server_passphrase")
-                .toCharArray()) == null)) {
+                || (properties.getProperty("server_keystore") == null)
+                || (properties.getProperty("server_passphrase").toCharArray() == null)) {
             return false;
         }
         return true;
