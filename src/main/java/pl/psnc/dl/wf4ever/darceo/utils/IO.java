@@ -161,6 +161,7 @@ public final class IO {
         zipOutput.putNextEntry(new ZipEntry(entryName));
         if (input != null) {
             IOUtils.copy(input, zipOutput);
+            input.close();
         }
         zipOutput.closeEntry();
         zipOutput.flush();
