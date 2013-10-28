@@ -69,4 +69,11 @@ public class ResearchObject implements ResearchObjectSerializable {
         //useless
     }
 
+
+	@Override
+	public void deleteIndexAttributes() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

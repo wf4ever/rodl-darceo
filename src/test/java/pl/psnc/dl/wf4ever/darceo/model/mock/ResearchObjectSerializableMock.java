@@ -60,4 +60,11 @@ public class ResearchObjectSerializableMock implements ResearchObjectSerializabl
         //nope
     }
 
+
+	@Override
+	public void deleteIndexAttributes() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
